@@ -5,13 +5,12 @@ output:
     keep_md: true
 ---
 
-```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
-library(ggplot2)
-```
+
 
 ## Loading and preprocessing the data
 
-```{r}
+
+```r
 unzip('activity.zip')
 data <- read.csv('activity.csv')
 ```
@@ -23,65 +22,79 @@ data <- read.csv('activity.csv')
 
 1. Make a histogram of the total number of steps taken each day
 
-```{r}
+
+```r
 steps <- tapply(data$steps, data$date, FUN=sum, na.rm=TRUE)
 qplot(steps, binwidth=1000, xlab="N° Steps per day")
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-3-1.png)<!-- -->
+
 2. Calculate and report the mean and median total number of steps taken per day
 
-```{r}
+
+```r
 mean(steps, na.rm=TRUE)
+```
+
+```
+## [1] 9354.23
+```
+
+```r
 median(steps, na.rm=TRUE)
+```
+
+```
+## [1] 10395
 ```
 
 ## What is the average daily activity pattern?
 
 1. Make a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)
 
-```{r}
+
+```r
 averages <- aggregate(x=list(meanSteps=data$steps), by=list(interval=data$interval),FUN=mean, na.rm=TRUE)
 ggplot(data=averages , aes(x=interval, y=meanSteps)) + geom_line() + xlab("5-minutes interval") + ylab("Avg n° steps")
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-5-1.png)<!-- -->
+
 2. Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
 
-```{r}
+
+```r
 averages[which.max(averages$meanSteps),]
+```
+
+```
+##     interval meanSteps
+## 104      835  206.1698
 ```
 
 ## Imputing missing values
 
 1. Calculate and report the total number of missing values in the dataset (i.e. the total number of rows with NAs)
 
-```{r}
+
+```r
 numberNA <- length(which(is.na(data$steps)))
 ```
 
-* There are `r numberNA` missing values.
+* There are 2304 missing values.
 
-```{r echo=FALSE, results='hide', warning=FALSE, message=FALSE}
-library(scales)
-library(Hmisc)
-cleanedData <- data
-cleanedData$steps <- impute(cleanedData$steps, fun=mean)
-stepsCleaned <- tapply(cleanedData$steps, cleanedData$date, sum)
-```
+
 
 4. Make a histogram of the total number of steps taken each day and Calculate and report the mean and median total number of steps taken per day. Do these values differ from the estimates from the first part of the assignment? What is the impact of imputing missing data on the estimates of the total daily number of steps?
 
-```{r}
+
+```r
 qplot(stepsCleaned, xlab='Steps per day', ylab='Frecuency', binwidth=500)
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-9-1.png)<!-- -->
+
 ## Are there differences in activity patterns between weekdays and weekends?
 
-```{r echo=FALSE, warning=FALSE, message=FALSE}
-cleanedData$dateType <- ifelse(as.POSIXlt(cleanedData$date)$wday %in% c(0,6), 'weekend', 'weekday')
-data2 <- aggregate(steps ~ interval + dateType, data=cleanedData, mean)
-ggplot(data2, aes(interval, steps)) + 
-    geom_line() + 
-    facet_grid(dateType ~ .) +
-    xlab("5-Minute intervals") + 
-    ylab("Avg N° steps")
-```
+![](PA1_template_files/figure-html/unnamed-chunk-10-1.png)<!-- -->
